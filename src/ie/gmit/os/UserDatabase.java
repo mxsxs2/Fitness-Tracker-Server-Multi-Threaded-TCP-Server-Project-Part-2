@@ -1,5 +1,8 @@
 package ie.gmit.os;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class UserDatabase {
 	// The main folder of the data/user files
 	private String mainFolder = "data";
@@ -7,8 +10,8 @@ public class UserDatabase {
 	private String userData = this.mainFolder + System.getProperty("file.separator") + "userdata";
 	// The user list file
 	private String userListFile = this.mainFolder + System.getProperty("file.separator") + "users_list.txt";
-	// Transaction Logfile postfix
-	private String logPostfix = "_transaction.log";
+	// Transaction Logfile
+	private String logFile = this.mainFolder + System.getProperty("file.separator") +"user_transaction.log";
 
 	/**
 	 * Constructor which initialises the database files
@@ -74,5 +77,17 @@ public class UserDatabase {
 			return false;
 		// Check if the user exists in the list with the given password
 		return FileOperations.fileContains(this.userListFile, user.getPpsNumber() + "," + user.getPassword());
+	}
+	/**
+	 * Logs an event and the event data into the transaction log file
+	 * @param eventType
+	 * @param transactionData
+	 */
+	public void logTransaction(TransactionEvent eventType,String transactionData) {
+		//Get the current time stamp
+		final String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+		System.out.println(this.logFile+"  "+timeStamp+" "+eventType+": "+transactionData);
+		//Add to the log file
+		FileOperations.appendToFile(this.logFile,timeStamp+" "+eventType+": "+transactionData);
 	}
 }

@@ -152,5 +152,12 @@ public class User {
 	public String toCSVString() {
 		return this.ppsNumber + ","+this.getPassword()+"," + this.name + "," + this.address + "," + this.age + "," + this.weight + "," + this.height;
 	}
+	@Override
+	public String toString() {
+		return "User [ppsNumber=" + ppsNumber + ", password=" + this.getPassword() + ", name=" + name + ", address=" + address
+				+ ", age=" + age + ", weight=" + weight + ", height=" + height + "]";
+	}
+	
+	
 
 }

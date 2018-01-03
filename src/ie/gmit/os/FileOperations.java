@@ -117,12 +117,12 @@ public final class FileOperations {
 	public static boolean appendToFile(String filePath, String stringtoadd) {
 		try {
 			// Add to the end of the file
-			Files.write(Paths.get(filePath), (stringtoadd + "\r\n").getBytes(), StandardOpenOption.APPEND);
+			Files.write(Paths.get(filePath), (stringtoadd + "\r\n").getBytes(), StandardOpenOption.APPEND,StandardOpenOption.CREATE);
 			// Return true on success
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 		// Return false
 		return false;
