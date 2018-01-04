@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Class used to process an incoming connection to the server
@@ -103,12 +104,12 @@ public class ConnectionProcessor implements Runnable {
 								// Draw the logged in menu
 								do {
 									this.sendMessage(
-											"\nPress -1 to log out\nPress 1 to add fitness record\nPress 2 to add meal record");
+											"\nPress -1 to log out\nPress 1 to add fitness record\nPress 2 to add meal record\nPress 3 to view last 10 records");
 									this.message = (String) in.readObject();
 
 									// If fitness record adding
 									if (this.message.compareToIgnoreCase("1") == 0) {
-										FitnessModeAndMealType fmmt=null;
+										FitnessModeAndMealType fmmt = null;
 										String duration;
 										// Get the mode of the fitness
 										int option = this.sendMessageAndReadInt(
@@ -121,37 +122,42 @@ public class ConnectionProcessor implements Runnable {
 										} else if (option == 3) {
 											fmmt = FitnessModeAndMealType.Cycling;
 										}
-										
-										//Get the duration
-										duration=this.sendMessageAndReadString("Please enter the duration of trainig");
-										//If there was valid entry
-										if(fmmt!=null && duration.length()>0) {
-											//Crate a new record
-											Record r=new Record(RecordType.Fitness,fmmt,duration);
-											//Try to add record to the db
-											if(db.addRecord(r, user)) {
+
+										// Get the duration
+										duration = this
+												.sendMessageAndReadString("Please enter the duration of trainig");
+										// If there was valid entry
+										if (fmmt != null && duration.length() > 0) {
+											// Crate a new record
+											Record r = new Record(RecordType.Fitness, fmmt, duration);
+											// Try to add record to the db
+											if (db.addRecord(r, user)) {
 												this.sendMessage("The fitness record is added");
 												// Log the success
-												db.logTransaction(TransactionEvent.RecordAddSuccess,user.getPpsNumber()+": "+r.toString());
-											}else{
-												this.sendMessage("The fitness record could not be added. Please try again later");
+												db.logTransaction(TransactionEvent.RecordAddSuccess,
+														user.getPpsNumber() + ": " + r.toString());
+											} else {
+												this.sendMessage(
+														"The fitness record could not be added. Please try again later");
 												// Log the fail
-												db.logTransaction(TransactionEvent.RecordAddFail,user.getPpsNumber()+": "+r.toString());
+												db.logTransaction(TransactionEvent.RecordAddFail,
+														user.getPpsNumber() + ": " + r.toString());
 											}
-										}else {
+										} else {
 											this.sendMessage("The provided details of the record are invalid");
 											// Log the fail
-											db.logTransaction(TransactionEvent.RecordAddFail,user.getPpsNumber()+": Invalid input");
+											db.logTransaction(TransactionEvent.RecordAddFail,
+													user.getPpsNumber() + ": Invalid input");
 										}
 
-									//Meal record adding	
-									}else if (this.message.compareToIgnoreCase("2") == 0) {
-										FitnessModeAndMealType fmmt=null;
+										// Meal record adding
+									} else if (this.message.compareToIgnoreCase("2") == 0) {
+										FitnessModeAndMealType fmmt = null;
 										String description;
 										// Get the type of the meal
 										int option = this.sendMessageAndReadInt(
 												"Press 1 to add Walking meal\nPress 2 to add Running meal\nPress 3 to add Cycling meal");
-										// Get determine fitness mode
+										// Determine fitness mode
 										if (option == 1) {
 											fmmt = FitnessModeAndMealType.Walking;
 										} else if (option == 2) {
@@ -159,29 +165,95 @@ public class ConnectionProcessor implements Runnable {
 										} else if (option == 3) {
 											fmmt = FitnessModeAndMealType.Cycling;
 										}
-										
-										//Get the duration
-										description=this.sendMessageAndReadString("Please enter the short meal description(max 100 characters)");
-										//If there was valid entry
-										if(fmmt!=null && description.length()>0) {
-											//Crate a new record
-											Record r=new Record(RecordType.Meal,fmmt,description);
-											//Try to add record to the db
-											if(db.addRecord(r, user)) {
+
+										// Get the duration
+										description = this.sendMessageAndReadString(
+												"Please enter the short meal description(max 100 characters)");
+										// If there was valid entry
+										if (fmmt != null && description.length() > 0) {
+											// Crate a new record
+											Record r = new Record(RecordType.Meal, fmmt, description);
+											// Try to add record to the db
+											if (db.addRecord(r, user)) {
 												this.sendMessage("The meal record is added");
 												// Log the success
-												db.logTransaction(TransactionEvent.RecordAddSuccess,user.getPpsNumber()+": "+r.toString());
-											}else{
-												this.sendMessage("The meal record could not be added. Please try again later");
+												db.logTransaction(TransactionEvent.RecordAddSuccess,
+														user.getPpsNumber() + ": " + r.toString());
+											} else {
+												this.sendMessage(
+														"The meal record could not be added. Please try again later");
 												// Log the fail
-												db.logTransaction(TransactionEvent.RecordAddFail,user.getPpsNumber()+": "+r.toString());
+												db.logTransaction(TransactionEvent.RecordAddFail,
+														user.getPpsNumber() + ": " + r.toString());
 											}
-										}else {
+										} else {
 											this.sendMessage("The provided details of the record are invalid");
 											// Log the fail
-											db.logTransaction(TransactionEvent.RecordAddFail,user.getPpsNumber()+": Invalid input");
+											db.logTransaction(TransactionEvent.RecordAddFail,
+													user.getPpsNumber() + ": Invalid input");
 										}
+										// If record viewing option was selected
+									} else if (this.message.compareToIgnoreCase("3") == 0) {
+										// Number of records to select
+										int numberOfRecords = 10;
+										// Send the menu
+										int option = this.sendMessageAndReadInt(
+												"Press 1 for meal records\nPress 2 for fitness records\nPress 3 to both record types");
+										// Record types to select
+										RecordType recordType = null;
+										// Determine record type
+										if (option == 1) {
+											recordType = RecordType.Meal;
+										} else if (option == 2) {
+											recordType = RecordType.Fitness;
+										} else if (option == 3) {
+											recordType = null;
+										}
+										// Get the records
+										ArrayList<Record> records = db.getLatestRecords(user, numberOfRecords,
+												recordType);
+										// If there are no records
+										if (records.size() == 0) {
+											this.sendMessage("You dont have any"
+													+ (recordType != null ? " " + recordType.name() : "")
+													+ " records yet.");
+											// Log the record loading
+											db.logTransaction(TransactionEvent.RecordListLoaded,
+													user.getPpsNumber() + ": No"
+															+ (recordType != null ? " " + recordType.name() : "")
+															+ " records were found");
+										} else {
+											// Create new string builder
+											StringBuilder sb = new StringBuilder("");
+											// Stringify the loaded records according to requested record type
+											if (option == 1) {
+												// Add each record to the string builder
+												records.forEach(record -> sb.append("Position: " + record.getRecordId()
+														+ "; Meal: " + record.getModeType() + "; Description:"
+														+ record.getContent() + "\n"));
+											} else if (option == 2) {
+												// Add each record to the string builder
+												records.forEach(record -> sb.append("Position: " + record.getRecordId()
+														+ "; Mode: " + record.getModeType() + "; Duration:"
+														+ record.getContent() + "\n"));
+											} else if (option == 3) {
+												// Add each record to the string builder
+												records.forEach(record -> sb.append("Position: " + record.getRecordId()
+														+ "; Type: " + record.getRecordType() + "; Meal/Mode: "
+														+ record.getModeType() + "; Description/Duration:"
+														+ record.getContent() + "\n"));
+											}
+											// Send the records
+											this.sendMessage("Found " + records.size()
+													+ (recordType != null ? " " + recordType.name() : "")
+													+ " records:\n" + sb.toString());
 
+											// Log the record loading
+											db.logTransaction(TransactionEvent.RecordListLoaded,
+													user.getPpsNumber() + ": " + records.size() + " "
+															+ (recordType != null ? " " + recordType.name() : "")
+															+ " found");
+										}
 									}
 									// Log out if -1 is entered
 								} while (!this.message.equals("-1"));
@@ -234,7 +306,7 @@ public class ConnectionProcessor implements Runnable {
 						}
 
 					} else if (this.message.compareToIgnoreCase("3") == 0) {
-						this.message="bye";
+						this.message = "bye";
 					}
 				} catch (ClassNotFoundException classnot) {
 					System.err.println("Data received in unknown format");
