@@ -1,7 +1,9 @@
 package ie.gmit.os;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 public class UserDatabase {
 	// The main folder of the data/user files
@@ -128,5 +130,20 @@ public class UserDatabase {
 		// Try to delete the line
 		return FileOperations.deleteLine(
 				this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv", lineNumber);
+	}
+	
+	/**
+	 * Get the last <i>numberOfRecords</i> amount of lines from the back of the file.
+	 * The records can be filtered to given RecordType. If the type is specified as null, all record types are shown.
+	 * @param user
+	 * @param numberOfRecords
+	 * @param recordType
+	 * @return ArrayList of Records
+	 */
+	public ArrayList<Record> getLatestRecords(User user,int numberOfRecords,RecordType recordType){
+		//Get the list of records from the file
+		ArrayList<String> list = FileOperations.getTailOfFile(this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv", numberOfRecords, recordType==null? "" : recordType.name());
+		//Convert the content of the array list to records
+		return list.stream().map(Record::new).collect(Collectors.toCollection(ArrayList::new));
 	}
 }

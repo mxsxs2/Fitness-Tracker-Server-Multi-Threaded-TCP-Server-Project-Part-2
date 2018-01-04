@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -91,15 +94,16 @@ public final class FileOperations {
 	 * @return boolean
 	 */
 	public static boolean fileContains(String filePath, String searchString) {
-		//Create a new stream from the file
+		// Create a new stream from the file
 		try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
-			//Check if the file contains the string
-			if(lines.filter(line->line.contains(searchString)).findFirst().isPresent()) return true;
+			// Check if the file contains the string
+			if (lines.filter(line -> line.contains(searchString)).findFirst().isPresent())
+				return true;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// Return false
 		return false;
 	}
@@ -114,8 +118,8 @@ public final class FileOperations {
 	public static boolean appendToFile(String filePath, String stringtoadd) {
 		try {
 			// Add to the end of the file
-			Files.write(Paths.get(filePath), (stringtoadd + System.getProperty("line.separator")).getBytes(), StandardOpenOption.APPEND,
-					StandardOpenOption.CREATE);
+			Files.write(Paths.get(filePath), (stringtoadd + System.getProperty("line.separator")).getBytes(),
+					StandardOpenOption.APPEND, StandardOpenOption.CREATE);
 			// Return true on success
 			return true;
 		} catch (IOException e) {
@@ -135,7 +139,7 @@ public final class FileOperations {
 	 * @return boolean
 	 */
 	public static boolean deleteLine(String filePath, int lineNumber) {
-		//Create a new stream from the file
+		// Create a new stream from the file
 		try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
 			// String buffer to store contents of the file
 			StringBuffer sb = new StringBuffer("");
@@ -149,7 +153,8 @@ public final class FileOperations {
 			});
 
 			// Write the file content back
-			Files.write(Paths.get(filePath), sb.toString().getBytes(), StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING);
+			Files.write(Paths.get(filePath), sb.toString().getBytes(), StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING);
 			// Return true
 			return true;
 		} catch (Exception e) {
@@ -158,7 +163,40 @@ public final class FileOperations {
 
 		return false;
 	}
-	
-	
+	/**
+	 * Loops the lines of a file starting from the beginning. Stores only the specified amount of lines from the back.
+	 * Filter should be an empty string if filtering is not required
+	 * @param filePath
+	 * @param numberOfLines
+	 * @param filter
+	 * @return ArrayList of lines
+	 */
+	public static ArrayList<String> getTailOfFile(String filePath, int numberOfLines, String filter) {
+		//Current line
+		AtomicInteger counter =new AtomicInteger(1);
+		// Lines holder
+		LinkedList<String> linesHolder = new LinkedList<String>();
+		// Create a new stream from the file
+		try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
+			// Loop each line
+			lines.forEach(line -> {
+				// Check if the line has to be or contains the filter text
+				if (filter == "" || line.contains(filter)) {
+					// Add the line to the holder
+					linesHolder.offer(counter.get()+","+line);
+					//Remove one from the holder if it exceeds the maximum number of lines
+					if(linesHolder.size()>numberOfLines) linesHolder.pop();
+				}
+				//Increment the counter
+				counter.incrementAndGet();
+			});
+		} catch (Exception e) {
+			//System.out.println(e.getMessage());
+			//e.printStackTrace();
+		}
+		// Convert the holder to an array list and return it
+		return new ArrayList<String>(linesHolder);
+
+	}
 
 }

@@ -42,9 +42,37 @@ public class Record {
 		this.content = content;
 	}
 
+	/**
+	 * Constructor from a CSV line
+	 * 
+	 * @param recordCSVString
+	 */
+	public Record(String recordCSVString) {
+		// If there is any lines
+		if (recordCSVString.trim().length() > 0) {
+			// Get the attributes of the string
+			String[] attr = recordCSVString.trim().split(",");
+			// Get the record id 
+			if (attr.length > 0)
+				this.recordId = Integer.parseInt(attr[0]);
+			// Get the record type
+			if (attr.length > 1)
+				this.recordType = RecordType.valueOf(attr[1]);
+			// Get the mode/type
+			if (attr.length > 2)
+				this.modeType = FitnessModeAndMealType.valueOf(attr[2]);
+			// Get the content
+			if (attr.length > 3)
+				this.content = attr[3];
+		}
+	}
 
 	public int getRecordId() {
 		return this.recordId;
+	}
+
+	public void setRecordId(int recordId) {
+		this.recordId = recordId;
 	}
 
 	public String getContent() {
