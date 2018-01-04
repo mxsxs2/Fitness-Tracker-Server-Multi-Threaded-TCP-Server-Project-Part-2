@@ -104,7 +104,7 @@ public class ConnectionProcessor implements Runnable {
 								// Draw the logged in menu
 								do {
 									this.sendMessage(
-											"\nPress -1 to log out\nPress 1 to add fitness record\nPress 2 to add meal record\nPress 3 to view last 10 records");
+											"\nPress -1 to log out\nPress 1 to add fitness record\nPress 2 to add meal record\nPress 3 to view last 10 records\nPress 4 to delete a record");
 									this.message = (String) in.readObject();
 
 									// If fitness record adding
@@ -253,6 +253,31 @@ public class ConnectionProcessor implements Runnable {
 													user.getPpsNumber() + ": " + records.size() + " "
 															+ (recordType != null ? " " + recordType.name() : "")
 															+ " found");
+										}
+										//If delete record
+									}else if (this.message.compareToIgnoreCase("4") == 0) {
+										//Get the record it
+										int recordId=this.sendMessageAndReadInt("Please enter the record id");
+										//If the id is valid
+										if(recordId>0) {
+											//Try do delete the record
+											if(db.deleteRecordAtPosition(user, recordId)){
+												this.sendMessage("The record was succesfully deleted");
+												// Log
+												db.logTransaction(TransactionEvent.RecordDeleteSuccess,
+														user.getPpsNumber() + ": record id " + recordId + " was deleted");
+												
+											}else {
+												this.sendMessage("The record could not be deleted this time. It either does not exists or there was a database error. Please try again later");
+												// Log
+												db.logTransaction(TransactionEvent.RecordDeleteFail,
+														user.getPpsNumber() + ": record id " + recordId + " could not be deleted");
+											}
+										}else {
+											this.sendMessage("This record id does not exists");
+											// Log
+											db.logTransaction(TransactionEvent.RecordDeleteSuccess,
+													user.getPpsNumber() + ": Invalid record id");
 										}
 									}
 									// Log out if -1 is entered

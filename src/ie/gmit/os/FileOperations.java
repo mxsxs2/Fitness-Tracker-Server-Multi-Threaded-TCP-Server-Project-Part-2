@@ -175,6 +175,10 @@ public final class FileOperations {
 			// Write the file content back
 			Files.write(Paths.get(filePath), sb.toString().getBytes(), StandardOpenOption.CREATE,
 					StandardOpenOption.TRUNCATE_EXISTING);
+			//If the line number was too high
+			if(currentLine.get()<lineNumber) {
+				return false;
+			}
 			// Return true
 			return true;
 		} catch (Exception e) {
