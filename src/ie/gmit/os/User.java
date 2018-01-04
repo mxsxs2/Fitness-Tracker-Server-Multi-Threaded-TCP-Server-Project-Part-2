@@ -49,12 +49,14 @@ public class User {
 		this.weight = weight;
 		this.height = height;
 	}
+
 	/**
 	 * Returns the encrypted version of the password
+	 * 
 	 * @return password
 	 */
 	public String getPassword() {
-		//https://howtodoinjava.com/security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
+		// https://howtodoinjava.com/security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
 		try {
 			// Create MessageDigest instance for MD5
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -150,14 +152,61 @@ public class User {
 	 * @return
 	 */
 	public String toCSVString() {
-		return this.ppsNumber + ","+this.getPassword()+"," + this.name + "," + this.address + "," + this.age + "," + this.weight + "," + this.height;
+		return this.ppsNumber + "," + this.getPassword() + "," + this.name + "," + this.address + "," + this.age + ","
+				+ this.weight + "," + this.height;
 	}
+
 	@Override
 	public String toString() {
-		return "User [ppsNumber=" + ppsNumber + ", password=" + this.getPassword() + ", name=" + name + ", address=" + address
-				+ ", age=" + age + ", weight=" + weight + ", height=" + height + "]";
+		return "User [ppsNumber=" + ppsNumber + ", password=" + this.getPassword() + ", name=" + name + ", address="
+				+ address + ", age=" + age + ", weight=" + weight + ", height=" + height + "]";
 	}
-	
-	
+
+	/**
+	 * User factory from the user credentials
+	 * 
+	 * @param ppsNumber
+	 * @param password
+	 * @return User
+	 */
+	public static User createUserFromCredentials(String ppsNumber, String password) {
+		// Create new user
+		User u = new User(ppsNumber, "", "", 0, 0, 0);
+		// Set the user password
+		u.setPassword(password);
+		// Return the user
+		return u;
+	}
+
+	/**
+	 * User factory from a csv string. Returns null if the given string cannot be
+	 * parsed into a User object. The method does not load the password of the user.
+	 * 
+	 * @param userCSVString
+	 * @param delimiter
+	 * @return User
+	 */
+	public static User createUserFromCSVLine(String userCSVString, String delimiter) {
+		// If there is any lines
+		if (userCSVString.trim().length() > 0) {
+			// Get the attributes of the string
+			String[] attr = userCSVString.trim().split(delimiter);
+			// Check if there is any result and if the pps number is filled
+			if (attr.length > 0 && attr[0].trim().length() > 0)
+				try {
+				// Create a new user out of the csv string's parts
+				return new User(attr[0].trim(), // PPS Number
+						attr.length > 2 ? attr[2].trim() : "", // Name
+						attr.length > 3 ? attr[3].trim() : "", // Address
+						attr.length > 4 ? Integer.parseInt(attr[4]) : 0, // Age
+						attr.length > 5 ? Float.parseFloat(attr[5]) : 0, // Weight
+						attr.length > 6 ? Float.parseFloat(attr[6]) : 0); // Height
+				}catch(NumberFormatException e){
+				
+				}
+		}
+
+		return null;
+	}
 
 }

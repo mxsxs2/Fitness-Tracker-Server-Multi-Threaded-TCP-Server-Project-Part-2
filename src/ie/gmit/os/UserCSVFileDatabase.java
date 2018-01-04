@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-public class UserDatabase {
+public class UserCSVFileDatabase implements Database {
 	// The main folder of the data/user files
 	private String mainFolder = "data";
 	// The folder of user files
@@ -18,7 +18,7 @@ public class UserDatabase {
 	/**
 	 * Constructor which initialises the database files
 	 */
-	public UserDatabase() {
+	public UserCSVFileDatabase() {
 		// Initialise the database files
 		this.initializeDatabase();
 	}
@@ -37,24 +37,19 @@ public class UserDatabase {
 		}
 	}
 
-	/**
-	 * Checks if a given pps number is already added to the user_list file
-	 * 
-	 * @param ppsNumber
-	 * @return boolean
+	/* (non-Javadoc)
+	 * @see ie.gmit.os.Database#isUserRegistered(java.lang.String)
 	 */
+	@Override
 	public boolean isUserRegistered(String ppsNumber) {
 		// Check if the user_list file contains the given pps number
 		return FileOperations.fileContains(this.userListFile, ppsNumber);
 	}
 
-	/**
-	 * Register user to the user_list file, create user data and user transaction
-	 * log files
-	 * 
-	 * @param User
-	 * @return boolean
+	/* (non-Javadoc)
+	 * @see ie.gmit.os.Database#registerUser(ie.gmit.os.User)
 	 */
+	@Override
 	public boolean registerUser(User user) throws Exception {
 		// If user is null return false
 		if (user == null)
@@ -69,13 +64,10 @@ public class UserDatabase {
 		return FileOperations.appendToFile(this.userListFile, user.toCSVString());
 	}
 
-	/**
-	 * Checks is the user's PPS number and the encrypted password exists in the
-	 * user_list file
-	 * 
-	 * @param User
-	 * @return boolean
+	/* (non-Javadoc)
+	 * @see ie.gmit.os.Database#isValidUserCredetials(ie.gmit.os.User)
 	 */
+	@Override
 	public boolean isValidUserCredetials(User user) {
 		// Return false if the user does not have pps number and password
 		if (user == null || user.getPpsNumber().isEmpty() && user.getPassword().isEmpty())
@@ -84,12 +76,10 @@ public class UserDatabase {
 		return FileOperations.fileContains(this.userListFile, user.getPpsNumber() + "," + user.getPassword());
 	}
 
-	/**
-	 * Logs an event and the event data into the transaction log file
-	 * 
-	 * @param eventType
-	 * @param transactionData
+	/* (non-Javadoc)
+	 * @see ie.gmit.os.Database#logTransaction(ie.gmit.os.TransactionEvent, java.lang.String)
 	 */
+	@Override
 	public void logTransaction(TransactionEvent eventType, String transactionData) {
 		// Get the current time stamp
 		final String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
@@ -98,14 +88,10 @@ public class UserDatabase {
 		FileOperations.appendToFile(this.logFile, timeStamp + " " + eventType + ": " + transactionData);
 	}
 
-	/**
-	 * Check is a record is valid. If it is valid it adds to the end of the users's
-	 * data file.
-	 * 
-	 * @param record
-	 * @param user
-	 * @return boolean
+	/* (non-Javadoc)
+	 * @see ie.gmit.os.Database#addRecord(ie.gmit.os.Record, ie.gmit.os.User)
 	 */
+	@Override
 	public boolean addRecord(Record record, User user) {
 		// If the user doesn't have PPS number or the record is not filled
 		if (user.getPpsNumber() == null || record.getRecordType() == null || record.getContent() == null
@@ -116,13 +102,11 @@ public class UserDatabase {
 				this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv",
 				record.toCSVString());
 	}
-	/**
-	 * Deletes a line at a given position
-	 * Line numbering starts from one
-	 * @param user
-	 * @param lineNumber
-	 * @return boolean
+
+	/* (non-Javadoc)
+	 * @see ie.gmit.os.Database#deleteRecordAtPosition(ie.gmit.os.User, int)
 	 */
+	@Override
 	public boolean deleteRecordAtPosition(User user, int lineNumber) {
 		// If the user doesn't have PPS number
 		if (user.getPpsNumber() == null)
@@ -131,19 +115,36 @@ public class UserDatabase {
 		return FileOperations.deleteLine(
 				this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv", lineNumber);
 	}
-	
-	/**
-	 * Get the last <i>numberOfRecords</i> amount of lines from the back of the file.
-	 * The records can be filtered to given RecordType. If the type is specified as null, all record types are shown.
-	 * @param user
-	 * @param numberOfRecords
-	 * @param recordType
-	 * @return ArrayList of Records
+
+	/* (non-Javadoc)
+	 * @see ie.gmit.os.Database#getLatestRecords(ie.gmit.os.User, int, ie.gmit.os.RecordType)
 	 */
-	public ArrayList<Record> getLatestRecords(User user,int numberOfRecords,RecordType recordType){
-		//Get the list of records from the file
-		ArrayList<String> list = FileOperations.getTailOfFile(this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv", numberOfRecords, recordType==null? "" : recordType.name());
-		//Convert the content of the array list to records
+	@Override
+	public ArrayList<Record> getLatestRecords(User user, int numberOfRecords, RecordType recordType) {
+		// Get the list of records from the file
+		ArrayList<String> list = FileOperations.getTailOfFile(
+				this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv", numberOfRecords,
+				recordType == null ? "" : recordType.name());
+		// Convert the content of the array list to records
 		return list.stream().map(Record::new).collect(Collectors.toCollection(ArrayList::new));
+	}
+
+	/* (non-Javadoc)
+	 * @see ie.gmit.os.Database#loadUserByPPSNumber(java.lang.String)
+	 */
+	@Override
+	public User loadUserByPPSNumber(String ppsNumber) {
+		// If there is some value
+		if (ppsNumber.length() > 0) {
+			// Get the user from the file
+			String userLine = FileOperations.findFirstInFile(this.userListFile, ppsNumber);
+			// If there is a user
+			if (userLine != null) {
+				// Convert the user line to an user Object
+				return User.createUserFromCSVLine(userLine, ",");
+			}
+		}
+
+		return null;
 	}
 }

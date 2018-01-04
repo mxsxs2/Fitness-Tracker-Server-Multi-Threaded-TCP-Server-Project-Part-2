@@ -4,9 +4,9 @@ public class Runner {
 	public static void main(String[] args) {
 		//Create a new server and start it
 		Server s=new Server();
-		//s.runServer();
-		
-		UserDatabase ud =new UserDatabase();
+		s.runServer();
+		/*
+		Database ud =new UserCSVFileDatabase();
 		
 		User user = new User("123456","Krisztian","Address",25,172,72);
 		user.setPassword("Krisz");
@@ -26,7 +26,7 @@ public class Runner {
 		Record r1 = new Record(RecordType.Fitness,FitnessModeAndMealType.Running,"25 min");
 		Record r2 = new Record(RecordType.Meal,FitnessModeAndMealType.Cycling,"chicken and egg");
 		Record r3 = new Record(RecordType.Meal,FitnessModeAndMealType.Walking,"----------------------2");
-		ud.addRecord(r1, user);
+		/*ud.addRecord(r1, user);
 		ud.addRecord(r2, user);
 		//ud.addRecord(r1, user);
 		ud.addRecord(r3, user);
@@ -34,7 +34,9 @@ public class Runner {
 		ud.getLatestRecords(user, 10, null).forEach(System.out::println);
 		//ud.deleteRecordAtPosition(user, 66);
 		ud.getLatestRecords(user, 10, RecordType.Meal).forEach(System.out::println);
-		System.out.println("hello");
+		
+		System.out.println(ud.loadUserByPPSNumber("123456"));
+		System.out.println(ud.loadUserByPPSNumber("00000"));*/
 		
 		
 		

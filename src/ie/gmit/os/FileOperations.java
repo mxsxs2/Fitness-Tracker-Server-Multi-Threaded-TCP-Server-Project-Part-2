@@ -1,18 +1,12 @@
 package ie.gmit.os;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -109,6 +103,32 @@ public final class FileOperations {
 	}
 
 	/**
+	 * Returns the line of a file if it contains the given text.
+	 * Returns null if the text was not found.
+	 * 
+	 * @param filePath
+	 * @param searchString
+	 * @return String
+	 */
+	public static String findFirstInFile(String filePath, String searchString) {
+		// Create a new stream from the file
+		try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
+			// Try to get the filtered line
+			String str = lines.filter(line -> line.contains(searchString)).findFirst().get().trim();
+			// If the line was found
+			if (str != null && str.length() > 0)
+				// Return the string
+				return str;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+
+		// Return false
+		return null;
+	}
+
+	/**
 	 * Writes to the end of a file.
 	 * 
 	 * @param filePath
@@ -163,17 +183,20 @@ public final class FileOperations {
 
 		return false;
 	}
+
 	/**
-	 * Loops the lines of a file starting from the beginning. Stores only the specified amount of lines from the back.
-	 * Filter should be an empty string if filtering is not required
+	 * Loops the lines of a file starting from the beginning. Stores only the
+	 * specified amount of lines from the back. Filter should be an empty string if
+	 * filtering is not required
+	 * 
 	 * @param filePath
 	 * @param numberOfLines
 	 * @param filter
 	 * @return ArrayList of lines
 	 */
 	public static ArrayList<String> getTailOfFile(String filePath, int numberOfLines, String filter) {
-		//Current line
-		AtomicInteger counter =new AtomicInteger(1);
+		// Current line
+		AtomicInteger counter = new AtomicInteger(1);
 		// Lines holder
 		LinkedList<String> linesHolder = new LinkedList<String>();
 		// Create a new stream from the file
@@ -183,16 +206,17 @@ public final class FileOperations {
 				// Check if the line has to be or contains the filter text
 				if (filter == "" || line.contains(filter)) {
 					// Add the line to the holder
-					linesHolder.offer(counter.get()+","+line);
-					//Remove one from the holder if it exceeds the maximum number of lines
-					if(linesHolder.size()>numberOfLines) linesHolder.pop();
+					linesHolder.offer(counter.get() + "," + line);
+					// Remove one from the holder if it exceeds the maximum number of lines
+					if (linesHolder.size() > numberOfLines)
+						linesHolder.pop();
 				}
-				//Increment the counter
+				// Increment the counter
 				counter.incrementAndGet();
 			});
 		} catch (Exception e) {
-			//System.out.println(e.getMessage());
-			//e.printStackTrace();
+			// System.out.println(e.getMessage());
+			// e.printStackTrace();
 		}
 		// Convert the holder to an array list and return it
 		return new ArrayList<String>(linesHolder);
