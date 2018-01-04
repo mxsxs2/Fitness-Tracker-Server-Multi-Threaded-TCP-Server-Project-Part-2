@@ -28,6 +28,9 @@ public class Runner {
 		
 		ud.addRecord(r1, user);
 		ud.addRecord(r2, user);
+		ud.addRecord(r1, user);
+		
+		ud.deleteRecordAtPosition(user, 2);
 		
 		
 		

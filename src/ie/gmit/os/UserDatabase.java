@@ -114,4 +114,19 @@ public class UserDatabase {
 				this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv",
 				record.toCSVString());
 	}
+	/**
+	 * Deletes a line at a given position
+	 * Line numbering starts from one
+	 * @param user
+	 * @param lineNumber
+	 * @return boolean
+	 */
+	public boolean deleteRecordAtPosition(User user, int lineNumber) {
+		// If the user doesn't have PPS number
+		if (user.getPpsNumber() == null)
+			return false;
+		// Try to delete the line
+		return FileOperations.deleteLine(
+				this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv", lineNumber);
+	}
 }
