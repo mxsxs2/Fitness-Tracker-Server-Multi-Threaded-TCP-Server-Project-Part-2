@@ -144,6 +144,44 @@ public class ConnectionProcessor implements Runnable {
 											db.logTransaction(TransactionEvent.RecordAddFail,user.getPpsNumber()+": Invalid input");
 										}
 
+									//Meal record adding	
+									}else if (this.message.compareToIgnoreCase("2") == 0) {
+										FitnessModeAndMealType fmmt=null;
+										String description;
+										// Get the type of the meal
+										int option = this.sendMessageAndReadInt(
+												"Press 1 to add Walking meal\nPress 2 to add Running meal\nPress 3 to add Cycling meal");
+										// Get determine fitness mode
+										if (option == 1) {
+											fmmt = FitnessModeAndMealType.Walking;
+										} else if (option == 2) {
+											fmmt = FitnessModeAndMealType.Running;
+										} else if (option == 3) {
+											fmmt = FitnessModeAndMealType.Cycling;
+										}
+										
+										//Get the duration
+										description=this.sendMessageAndReadString("Please enter the short meal description(max 100 characters)");
+										//If there was valid entry
+										if(fmmt!=null && description.length()>0) {
+											//Crate a new record
+											Record r=new Record(RecordType.Meal,fmmt,description);
+											//Try to add record to the db
+											if(db.addRecord(r, user)) {
+												this.sendMessage("The meal record is added");
+												// Log the success
+												db.logTransaction(TransactionEvent.RecordAddSuccess,user.getPpsNumber()+": "+r.toString());
+											}else{
+												this.sendMessage("The meal record could not be added. Please try again later");
+												// Log the fail
+												db.logTransaction(TransactionEvent.RecordAddFail,user.getPpsNumber()+": "+r.toString());
+											}
+										}else {
+											this.sendMessage("The provided details of the record are invalid");
+											// Log the fail
+											db.logTransaction(TransactionEvent.RecordAddFail,user.getPpsNumber()+": Invalid input");
+										}
+
 									}
 									// Log out if -1 is entered
 								} while (!this.message.equals("-1"));
