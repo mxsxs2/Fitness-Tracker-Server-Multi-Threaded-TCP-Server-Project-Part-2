@@ -43,7 +43,7 @@ public class UserCSVFileDatabase implements Database {
 	@Override
 	public boolean isUserRegistered(String ppsNumber) {
 		// Check if the user_list file contains the given pps number
-		return FileOperations.fileContains(this.userListFile, ppsNumber);
+		return FileOperations.fileContains(this.userListFile, ppsNumber+",");
 	}
 
 	/* (non-Javadoc)
@@ -137,7 +137,7 @@ public class UserCSVFileDatabase implements Database {
 		// If there is some value
 		if (ppsNumber.length() > 0) {
 			// Get the user from the file
-			String userLine = FileOperations.findFirstInFile(this.userListFile, ppsNumber);
+			String userLine = FileOperations.findFirstInFile(this.userListFile, ppsNumber+",");
 			// If there is a user
 			if (userLine != null) {
 				// Convert the user line to an user Object
