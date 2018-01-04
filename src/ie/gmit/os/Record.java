@@ -1,7 +1,7 @@
 package ie.gmit.os;
 
 public class Record {
-	//The id of this record
+	// The id of this record
 	private int recordId;
 	// The type of this record
 	private RecordType recordType;
@@ -12,22 +12,37 @@ public class Record {
 	// The maximum length of the content
 	private int contentLength;
 
-	
-	
 	/**
-	 * Constructor usig fileds
+	 * Constructor usig fileds without record id
+	 * 
 	 * @param recordType
 	 * @param modeType
 	 * @param content
 	 */
-	public Record(int recordId,RecordType recordType, FitnessModeAndMealType modeType, String content) {
+	public Record(RecordType recordType, FitnessModeAndMealType modeType, String content) {
+		super();
+		this.recordType = recordType;
+		this.modeType = modeType;
+		this.content = content;
+	}
+
+	/**
+	 * Constructor usig fileds
+	 * 
+	 * @param recordId
+	 * @param recordType
+	 * @param modeType
+	 * @param content
+	 */
+	public Record(int recordId, RecordType recordType, FitnessModeAndMealType modeType, String content) {
 		super();
 		this.recordId = recordId;
 		this.recordType = recordType;
 		this.modeType = modeType;
 		this.content = content;
 	}
-	
+
+
 	public int getRecordId() {
 		return this.recordId;
 	}
@@ -61,13 +76,19 @@ public class Record {
 		return this.modeType;
 	}
 
+	/**
+	 * Converts the record details to CSV format
+	 * 
+	 * @return String
+	 */
+	public String toCSVString() {
+		return recordType + "," + modeType + "," + content;
+	}
+
 	@Override
 	public String toString() {
 		return "Record [recordId=" + recordId + ", recordType=" + recordType + ", modeType=" + modeType + ", content="
 				+ content + "]";
 	}
-	
-	
-	
-	
+
 }

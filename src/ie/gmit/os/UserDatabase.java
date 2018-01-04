@@ -11,7 +11,7 @@ public class UserDatabase {
 	// The user list file
 	private String userListFile = this.mainFolder + System.getProperty("file.separator") + "users_list.txt";
 	// Transaction Logfile
-	private String logFile = this.mainFolder + System.getProperty("file.separator") +"user_transaction.log";
+	private String logFile = this.mainFolder + System.getProperty("file.separator") + "user_transaction.log";
 
 	/**
 	 * Constructor which initialises the database files
@@ -66,8 +66,11 @@ public class UserDatabase {
 		// Try to register the user
 		return FileOperations.appendToFile(this.userListFile, user.toCSVString());
 	}
+
 	/**
-	 * Checks is the user's PPS number and the encrypted password exists in the user_list file
+	 * Checks is the user's PPS number and the encrypted password exists in the
+	 * user_list file
+	 * 
 	 * @param User
 	 * @return boolean
 	 */
@@ -78,16 +81,37 @@ public class UserDatabase {
 		// Check if the user exists in the list with the given password
 		return FileOperations.fileContains(this.userListFile, user.getPpsNumber() + "," + user.getPassword());
 	}
+
 	/**
 	 * Logs an event and the event data into the transaction log file
+	 * 
 	 * @param eventType
 	 * @param transactionData
 	 */
-	public void logTransaction(TransactionEvent eventType,String transactionData) {
-		//Get the current time stamp
+	public void logTransaction(TransactionEvent eventType, String transactionData) {
+		// Get the current time stamp
 		final String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-		System.out.println(this.logFile+"  "+timeStamp+" "+eventType+": "+transactionData);
-		//Add to the log file
-		FileOperations.appendToFile(this.logFile,timeStamp+" "+eventType+": "+transactionData);
+		System.out.println(this.logFile + "  " + timeStamp + " " + eventType + ": " + transactionData);
+		// Add to the log file
+		FileOperations.appendToFile(this.logFile, timeStamp + " " + eventType + ": " + transactionData);
+	}
+
+	/**
+	 * Check is a record is valid. If it is valid it adds to the end of the users's
+	 * data file.
+	 * 
+	 * @param record
+	 * @param user
+	 * @return boolean
+	 */
+	public boolean addRecord(Record record, User user) {
+		// If the user doesn't have PPS number or the record is not filled
+		if (user.getPpsNumber() == null || record.getRecordType() == null || record.getContent() == null
+				|| record.getModeType() == null)
+			return false;
+		// Add the record to the user file
+		return FileOperations.appendToFile(
+				this.userData + System.getProperty("file.separator") + user.getPpsNumber() + ".csv",
+				record.toCSVString());
 	}
 }
