@@ -11,7 +11,7 @@ public class UserCSVFileDatabase implements Database {
 	// The folder of user files
 	private String userData = this.mainFolder + System.getProperty("file.separator") + "userdata";
 	// The user list file
-	private String userListFile = this.mainFolder + System.getProperty("file.separator") + "users_list.txt";
+	private String userListFile = this.mainFolder + System.getProperty("file.separator") + "users_list.csv";
 	// Transaction Logfile
 	private String logFile = this.mainFolder + System.getProperty("file.separator") + "user_transaction.log";
 
