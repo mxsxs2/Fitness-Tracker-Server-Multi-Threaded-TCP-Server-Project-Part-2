@@ -157,14 +157,14 @@ public class ConnectionProcessor implements Runnable {
 										String description;
 										// Get the type of the meal
 										int option = this.sendMessageAndReadInt(
-												"Press 1 to add Walking meal\nPress 2 to add Running meal\nPress 3 to add Cycling meal");
+												"Press 1 to add Breakfast\nPress 2 to add Lunch\nPress 3 to add Dinner");
 										// Determine fitness mode
 										if (option == 1) {
-											fmmt = FitnessModeAndMealType.Walking;
+											fmmt = FitnessModeAndMealType.Breakfast;
 										} else if (option == 2) {
-											fmmt = FitnessModeAndMealType.Running;
+											fmmt = FitnessModeAndMealType.Lunch;
 										} else if (option == 3) {
-											fmmt = FitnessModeAndMealType.Cycling;
+											fmmt = FitnessModeAndMealType.Dinner;
 										}
 
 										// Get the duration

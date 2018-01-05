@@ -7,5 +7,9 @@ package ie.gmit.os;
 public enum FitnessModeAndMealType {
 	Walking,
 	Running,
-	Cycling
+	Cycling,
+	
+	Breakfast,
+	Lunch,
+	Dinner
 }
