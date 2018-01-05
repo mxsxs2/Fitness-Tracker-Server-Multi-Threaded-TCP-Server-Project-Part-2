@@ -68,8 +68,9 @@ public class ConnectionProcessor implements Runnable {
 			System.out.println("Accepted Client : ID - " + clientID + " : Address - "
 					+ clientSocket.getInetAddress().getHostName());
 
-			// Log 
-			db.logTransaction(TransactionEvent.ConnectionStarted,"ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+			// Log
+			db.logTransaction(TransactionEvent.ConnectionStarted,
+					"ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
 			// Create an empty user object
 			User user;
 
@@ -105,7 +106,7 @@ public class ConnectionProcessor implements Runnable {
 								// Draw the logged in menu
 								do {
 									this.sendMessage(
-											"\nPress -1 to log out\nPress 1 to add fitness record\nPress 2 to add meal record\nPress 3 to view last 10 records\nPress 4 to delete a record");
+											"\nPress -1 to log out\nPress 1 to add fitness record\nPress 2 to add meal record\nPress 3 to view last ten records\nPress 4 to delete a record\nPress 5 to view user details");
 									this.message = (String) in.readObject();
 
 									// If fitness record adding
@@ -255,31 +256,40 @@ public class ConnectionProcessor implements Runnable {
 															+ (recordType != null ? " " + recordType.name() : "")
 															+ " found");
 										}
-										//If delete record
-									}else if (this.message.compareToIgnoreCase("4") == 0) {
-										//Get the record it
-										int recordId=this.sendMessageAndReadInt("Please enter the record id");
-										//If the id is valid
-										if(recordId>0) {
-											//Try do delete the record
-											if(db.deleteRecordAtPosition(user, recordId)){
+										// If delete record
+									} else if (this.message.compareToIgnoreCase("4") == 0) {
+										// Get the record it
+										int recordId = this.sendMessageAndReadInt("Please enter the record id");
+										// If the id is valid
+										if (recordId > 0) {
+											// Try do delete the record
+											if (db.deleteRecordAtPosition(user, recordId)) {
 												this.sendMessage("The record was succesfully deleted");
 												// Log
 												db.logTransaction(TransactionEvent.RecordDeleteSuccess,
-														user.getPpsNumber() + ": record id " + recordId + " was deleted");
-												
-											}else {
-												this.sendMessage("The record could not be deleted this time. It either does not exists or there was a database error. Please try again later");
+														user.getPpsNumber() + ": record id " + recordId
+																+ " was deleted");
+
+											} else {
+												this.sendMessage(
+														"The record could not be deleted this time. It either does not exists or there was a database error. Please try again later");
 												// Log
-												db.logTransaction(TransactionEvent.RecordDeleteFail,
-														user.getPpsNumber() + ": record id " + recordId + " could not be deleted");
+												db.logTransaction(TransactionEvent.RecordDeleteFail, user.getPpsNumber()
+														+ ": record id " + recordId + " could not be deleted");
 											}
-										}else {
+										} else {
 											this.sendMessage("This record id does not exists");
 											// Log
 											db.logTransaction(TransactionEvent.RecordDeleteSuccess,
 													user.getPpsNumber() + ": Invalid record id");
 										}
+										// If show user details
+									} else if (this.message.compareToIgnoreCase("5") == 0) {
+										//Send user details
+										this.sendMessage("User details:\n" + "PPS Number: " + user.getPpsNumber()
+												+ "\nName: " + user.getName() + "\nAddress: " + user.getAddress()
+												+ "\nAge: " + user.getAge() + "\nWeight: " + user.getWeight()
+												+ "\nHeight: " + user.getHeight());
 									}
 									// Log out if -1 is entered
 								} while (!this.message.equals("-1"));
@@ -342,19 +352,21 @@ public class ConnectionProcessor implements Runnable {
 
 			System.out.println(
 					"Ending Client : ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
-			// Log 
-			db.logTransaction(TransactionEvent.ConnectionEnded,"ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+			// Log
+			db.logTransaction(TransactionEvent.ConnectionEnded,
+					"ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
 		} catch (Exception e) {
-			
-			if(e.getMessage().equals("Connection reset")) {
-				System.out.println(
-						"Client connection reset : ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
-			}else {
-				System.out.println(
-						"Client connection error ("+e.getMessage()+"): ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+
+			if (e.getMessage().equals("Connection reset")) {
+				System.out.println("Client connection reset : ID - " + clientID + " : Address - "
+						+ clientSocket.getInetAddress().getHostName());
+			} else {
+				System.out.println("Client connection error (" + e.getMessage() + "): ID - " + clientID
+						+ " : Address - " + clientSocket.getInetAddress().getHostName());
 			}
-			// Log 
-			db.logTransaction(TransactionEvent.ConnectionError,e.getMessage()+": ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+			// Log
+			db.logTransaction(TransactionEvent.ConnectionError, e.getMessage() + ": ID - " + clientID + " : Address - "
+					+ clientSocket.getInetAddress().getHostName());
 		}
 	}
 
