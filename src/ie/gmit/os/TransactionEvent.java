@@ -5,6 +5,10 @@ package ie.gmit.os;
  *
  */
 public enum TransactionEvent {
+	ConnectionError,
+	ConnectionStarted,
+	ConnectionEnded,
+	
 	RegisterSuccess,
 	RegisterFail,
 	

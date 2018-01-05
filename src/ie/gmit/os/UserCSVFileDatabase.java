@@ -83,7 +83,6 @@ public class UserCSVFileDatabase implements Database {
 	public void logTransaction(TransactionEvent eventType, String transactionData) {
 		// Get the current time stamp
 		final String timeStamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-		System.out.println(this.logFile + "  " + timeStamp + " " + eventType + ": " + transactionData);
 		// Add to the log file
 		FileOperations.appendToFile(this.logFile, timeStamp + " " + eventType + ": " + transactionData);
 	}

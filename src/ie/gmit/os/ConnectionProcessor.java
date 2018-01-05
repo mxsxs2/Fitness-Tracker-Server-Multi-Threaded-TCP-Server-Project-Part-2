@@ -49,7 +49,6 @@ public class ConnectionProcessor implements Runnable {
 			out.writeObject(msg);
 			// Flush the stream
 			out.flush();
-			System.out.println("server> " + msg);
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
 		}
@@ -57,6 +56,8 @@ public class ConnectionProcessor implements Runnable {
 
 	@Override
 	public void run() {
+		// Create a new Database
+		Database db = new UserCSVFileDatabase();
 		try {
 			// create a new output stream
 			out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -67,8 +68,8 @@ public class ConnectionProcessor implements Runnable {
 			System.out.println("Accepted Client : ID - " + clientID + " : Address - "
 					+ clientSocket.getInetAddress().getHostName());
 
-			// Create a new Database
-			Database db = new UserCSVFileDatabase();
+			// Log 
+			db.logTransaction(TransactionEvent.ConnectionStarted,"ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
 			// Create an empty user object
 			User user;
 
@@ -341,8 +342,19 @@ public class ConnectionProcessor implements Runnable {
 
 			System.out.println(
 					"Ending Client : ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+			// Log 
+			db.logTransaction(TransactionEvent.ConnectionEnded,"ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
 		} catch (Exception e) {
-			e.printStackTrace();
+			
+			if(e.getMessage().equals("Connection reset")) {
+				System.out.println(
+						"Client connection reset : ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+			}else {
+				System.out.println(
+						"Client connection error ("+e.getMessage()+"): ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
+			}
+			// Log 
+			db.logTransaction(TransactionEvent.ConnectionError,e.getMessage()+": ID - " + clientID + " : Address - " + clientSocket.getInetAddress().getHostName());
 		}
 	}
 

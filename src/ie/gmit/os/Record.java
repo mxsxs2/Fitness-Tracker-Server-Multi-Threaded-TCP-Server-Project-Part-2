@@ -13,7 +13,7 @@ public class Record {
 	private int contentLength;
 
 	/**
-	 * Constructor usig fileds without record id
+	 * Constructor using fields without record id
 	 * 
 	 * @param recordType
 	 * @param modeType
@@ -27,7 +27,7 @@ public class Record {
 	}
 
 	/**
-	 * Constructor usig fileds
+	 * Constructor using fields
 	 * 
 	 * @param recordId
 	 * @param recordType
